@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="date" content='2024-02-27'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- our local copy of whichever classless CSS framework -->
+    <link rel="stylesheet" href="./res/sakura.css" type="text/css">
+    <!-- the syntax highlighting CSS that pandoc generated-->
+    <link rel="stylesheet" href="./res/syntax.css">
+    <title>You might not know all of these Vim tricks</title>
+  </head>
+  <body>
+    <a name="top"></a>
+    <p><a href="./index.html">↩︎ Back to busfahrer's blog</a></p>
+    <h1>You might not know all of these Vim tricks</h1>
+    <p>2024-02-27 &bull; by busfahrer</p>
+
+<!-- including this inline style block is a hack to avoid having to include this
+for all articles when only this one needs it -->
+<style>
+.cursor {
+  color: black;
+  background: yellow;
+}
+</style>
+<blockquote>
+<p>
+<cite>Verily, this vichyssoise of verbiage veers most verbose</cite>
+</p>
+<p>
+ 
+</p>
+<p>
+<footer>
+—V for Vendetta, by Alan Moore
+</footer>
+</p>
+</blockquote>
+<p>It’s literally been 20 years since my last (and only) <a
+href="http://busfahrer.blogspot.com/">blog post</a>, and I’ve decided to
+have a go at it again.</p>
+<p>I’ve recently set my mind to learning more than just the <a
+href="https://web.archive.org/web/19981202092900/http://www.dina.kvl.dk/~abraham/religion/vi-tutorial.html">basic
+25%</a> of Vim functions that I’ve gotten away with using ever since
+first encountering the editor in the late 90s. What has been surprising
+to me is the fact that there does not seem to be an established set of
+working knowledge that most users apply daily. I’ve scoured numerous
+articles, forum posts and HN threads in search of methods for improving
+my daily workflow, and I would often come across new tricks, even after
+I had already been searching for weeks, and often these techniques were
+not niche in any way, but rather foundational methods that had me
+wondering how all the materials I had perused that far could have
+possibly been missing them.</p>
+<p>I attribute this peculiarity in the distribution of knowledge to the
+almost intimidating range of functions that Vim has to offer.</p>
+<p>If you use Vim in any half-serious capacity, I encourage you to
+browse these tips. There’s a fair chance you might encounter a technique
+that you’ll be glad of daily.</p>
+<p><strong>Note:</strong> This article assumes some basic familiarity
+with Vim; if you know what <code>dw</code> does you should be fine. In
+any case I can highly recommend going through the tutorial included with
+Vim called <a
+href="https://remarkablemark.org/vimtutor/"><code>vimtutor</code></a>, I
+learned a bunch of new stuff that way and it only takes a few
+minutes.</p>
+<h4 id="table-of-contents">Table of Contents</h4>
+<ul>
+<li><a href="#intra-line-movement">Intra-line movement</a></li>
+<li><a href="#text-objects">Text Objects</a></li>
+<li><a href="#text-object-motions">Text Object Motions</a></li>
+<li><a href="#search-is-a-motion">Search is a motion</a></li>
+<li><a href="#increasing-and-decreasing-numbers">Increasing and
+decreasing numbers</a></li>
+<li><a href="#single-command-during-insert-mode">Single command during
+insert mode</a></li>
+<li><a href="#inserting-from-registers">Inserting from
+registers</a></li>
+<li><a href="#swapping-two-items">Swapping two items</a></li>
+<li><a href="#replacing-text-with-yanked-text">Replacing text with
+yanked text</a></li>
+<li><a href="#opening-the-last-document">Opening the last
+document</a></li>
+<li><a href="#repeating-the-last-ex-command">Repeating the last Ex
+command</a></li>
+<li><a href="#repeating-the-last-substitution">Repeating the last
+substitution</a></li>
+<li><a href="#write-to-a-system-file-using-sudo">Write to a system file
+using <code>sudo</code></a></li>
+<li><a href="#navigating-files-with-long-lines">Navigating files with
+long lines</a></li>
+</ul>
+<h1 id="notes-on-this-document">Notes on this document</h1>
+<p>With these tips, I’m focussing on Vim’s features as what I’d like to
+think of as an “editor-engine”, i.e. on everything that has to do with
+modifying text. This is because many people nowadays work in a
+heterogenous environment, where instead of using Vim directly all the
+time, they will often use the respective Vim extensions of other editors
+or IDEs, to allow these to be controlled using Vim’s battle-tested set
+of commands. In my dayjob I routinely switch between GVim, Sublime Text,
+WebStorm/IntelliJ and Visual Studio, but I control all of these using
+Vim commands. And for the same reason, this document will not go into
+the various plugins for Vim that improve its functionality in various
+ways, since they won’t be available when you’re using Vim commands in
+some other IDE, or when you’re ssh’ed into a remote system. For the few
+tips that apply exclusively to the actual Vim program, I’ve marked these
+with the dagger symbol † in their title.</p>
+<p>Now, without further ado:</p>
+<h1 id="the-tricks">The Tricks</h1>
+<h4 id="intra-line-movement">Intra-line movement</h4>
+<p>This is fairly basic Vim stuff, but I wasn’t aware of it at all, so
+I’m going to include it here in case you’re just as oblivious as I was.
+Assuming you’re working on a function like below (the highlighted
+character is the position of the cursor):</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class=cursor>f</span>unction <span class="fu">myFunctionWithALongName</span>() {</span></code></pre></div>
+<p>In this situation, if you want to rename this function to
+<code>myFunctionName</code>, you can use Vim’s facilities for quickly
+moving around a single line. Type <code>f</code> followed by a single
+character to move to the next occurrence of that character on the
+current line. For example, type <code>fW</code> in this scenario to jump
+to the <code>W</code> of <code>With</code>. There’s also another variant
+of this functionality using the <code>t</code> key, which stops one
+character before the target character. The mnemonic for this is that you
+are jumping <em>to</em> or <em>till</em> that character.</p>
+<p>Where this becomes really handy is when you start to combine it with
+operators. Let’s say you are still sitting on that <code>W</code>, and
+you want to change the function name to <code>myFunctionName</code>. Hit
+<code>dtN</code> to achieve exactly that, causing Vim to “delete till
+N”. By removing everything from <code>W</code> to (but not including)
+<code>N</code>, you end up with the text <code>myFunctionName</code>,
+which is precisely what we wanted to achieve here.</p>
+<p>Both of these functions also have variants for jumping to the left,
+using <code>F</code> and <code>T</code>, respectively. You can also
+repeat the last of these character searches by hitting the
+<code>;</code> key, and you can use the <code>,</code> key to repeat the
+search in the opposite direction.</p>
+<h4 id="text-objects">Text Objects</h4>
+<p>One of the most powerful Vim features, in my opinion, are text
+objects. These allow you to navigate and modify the document using
+semantic units instead of character-wise. For example, let’s say you are
+editing a function in any C-like language (JavaScript, C#, etc.):</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> greet<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> i<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> <span class=cursor>x</span><span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>In this situation, you can type <code>di{</code> to delete the entire
+body of the block you are currently in, leaving you with this:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> greet<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>The mnemonic for <code>di{</code> is “delete inside {”. For every
+text object, there’s not only an “inside” variant, but also an “outside”
+one. For example, if you want to include the braces in the deletion,
+there’s also <code>da{</code>, which you can remember as “delete a
+{-block”. Also note that either <code>{</code> or <code>}</code> work
+for these, so you can use whichever is easier to reach for you. Had you
+typed <code>da{</code> above instead, you’d be left with this:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> greet<span class="op">()</span></span></code></pre></div>
+<p>The same kind of logic works for quoted strings using <code>"</code>,
+<code>'</code> or <code>`</code>, and also for the other types of
+parens<code>()</code> and brackets <code>[] &lt;&gt;</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">greet</span>(a<span class=cursor>g</span>e<span class="op">,</span> hobby) {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&quot;Hello,&quot;</span> name)<span class="op">;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Typing <code>ci)name</code> here would result in this:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">greet</span>(name) {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&quot;Hello,&quot;</span> name)<span class="op">;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p><strong>Bonus Tip:</strong> In Vim, text inside <code>()</code> or
+<code>{}</code> can also be considered a block. This means that you can
+use <code>b</code> for <code>()</code>-blocks and <code>B</code> for
+<code>{}</code>-blocks (as a mnemonic you can remember little block vs
+big block), for example you can use <code>cib</code> instead of
+<code>ci(</code> and also <code>daB</code> instead of <code>da}</code>.
+At least in my experience, I’ve found these shortcuts far easier to
+reach.</p>
+<p>These are also really useful for indentation. For example, if you
+have this:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">greet</span>(name) {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&quot;Hell<span class=cursor>o</span>,&quot;</span> name)<span class="op">;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&quot;Goodbye,&quot;</span> name)<span class="op">;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Here, you can enter <code>&gt;iB</code> to indent the content within
+the block, yielding this:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">greet</span>(name) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&quot;Hell<span class=cursor>o</span>,&quot;</span> name)<span class="op">;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&quot;Goodbye,&quot;</span> name)<span class="op">;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>As a bonus note, since the <code>=</code> operator automatically
+fixes indentation based on your code, you could’ve also used
+<code>=iB</code> in this example (which depends on Vim knowing about
+your filetype, however).</p>
+<p>Outside of code-specific text objects, there are also those that
+relate to natural language, specifically words, sentences and
+paragraphs. Assuming you already know about words, here’s Vim’s
+definition of what a sentence is:</p>
+<blockquote>
+<p>A sentence is defined as ending at a ‘.’, ‘!’ or ‘?’ followed by
+either the end of a line, or by a space or tab.</p>
+</blockquote>
+<p>This has very limited use when writing code, but is immensely useful
+when writing natural language or even code comments. For example, you
+can use <code>yis</code> to yank the sentence that your cursor is
+currently on.</p>
+<p>The difference between inner and outer (e.g. <code>dis</code> and
+<code>das</code>) for sentences is that <code>das</code> will also
+delete the space(s) following the sentence.</p>
+<p>The nice thing is that you can save even more keystrokes by knowing
+that Vim will automatically send you to the next block if you are not
+already inside one. For example, given the same situation as before, but
+the cursor at the beginning of the line:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class=cursor>f</span>unction <span class="fu">greet</span>(age<span class="op">,</span> hobby) {</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&quot;Hello,&quot;</span> name)<span class="op">;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>If you type <code>cib</code> now, your cursor will automatically
+travel to inside the parens. Similarily, let’s say you wanted to convert
+the function definition to a forward declaration instead. Instead of
+<code>cib</code>, you can type <code>daBr;</code>. The <code>daB</code>
+part will “delete a block”, and your cursor will sit on the space after
+the last parens, where <code>r;</code> will replace it with the missing
+semicolon:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode js"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">greet</span>(age<span class="op">,</span> hobby)<span class="op">;</span></span></code></pre></div>
+<p>This feature of automatically travelling to the relevant block seems
+to have been added in Vim 8.2, at least that’s the result of my cursory
+(no pun intended) experiment of doing a binary search of Alpine Linux
+containers.</p>
+<p>One technique I frequently employ is to use text objects to
+delete/yank entire functions:</p>
+<pre><code>function foo() {
+  console.log(&quot;foo&quot;)<span class=cursor>;</span>
+
+  console.log(&quot;bar&quot;);
+}</code></pre>
+<p>Sure, you can do <code>daB</code>, but that will only delete the
+function body, so you have to do <code>dd</code> to get rid of the
+function signature. What I do instead is <code>vaBD</code>. This will
+visually select the block, and then the upper-case <code>D</code> will
+cause the selection to be deleted line-wise. Of course this only works
+if your opening brace is on the same line as the function signature
+(sorry, GNU-style coders). Another gotcha with this is that your cursor
+has to be on the outermost level of the surrounding block:</p>
+<pre><code>function foo()
+{
+  console.log(&quot;foo&quot;);
+
+  for (let i = 0; i &lt; 10; i++) {
+    console.log(<span class=cursor>i</span>);
+  }
+
+  console.log(&quot;bar&quot;);
+}</code></pre>
+<p>If you’re inside the body of a for-loop like above, for example, it
+will simply select the loop body. However, you can extend your selection
+“outwards” by repeating <code>aB</code>, so this would give us the
+complete command of <code>vaBaBD</code> for this example.</p>
+<p>As an alternative technique you can use if your opening braces are
+not in the same line as the function signature: Hit <code>vaB</code> to
+visually select the block, then press <code>o</code> to jump to the
+beginning of the visual selection. Now you can extend your selection
+upwards with <code>k</code> and then delete it with <code>D</code>.</p>
+<h5 id="paragraphs">Paragraphs</h5>
+<p>It occurs to me that I now have spent multiple paragraphs talking
+about text objects without ever mentioning my favourite text object:
+Paragraphs!</p>
+<p>In Vim, a paragraph is one or more lines that are surrounded by blank
+lines. You use <code>p</code> to denote a paragrap, for example like
+<code>dip</code> for “delete inside paragraph”. As you can maybe tell
+already, this is infinitely more useful when it comes to code than the
+sentence text object. Consider this example:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> i<span class="op">;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  doubl<span class=cursor>e</span> x<span class="op">;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  i <span class="op">=</span> <span class="dv">2187</span><span class="op">;</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  x <span class="op">=</span> <span class="fl">1.337</span><span class="op">;</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  printf<span class="op">(</span><span class="st">&quot;Mon dieu!</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span></code></pre></div>
+<p>If you now enter <code>2dap</code>, it will leave you with this:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>  printf<span class="op">(</span><span class="st">&quot;Mon dieu!</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span></code></pre></div>
+<p>As you can see, the “outer” variant of the paragraph text objects
+includes the following blank line.</p>
+<h5 id="tags">Tags</h5>
+<p>When you’re working with HTML or XML, there’s obviously the popular
+Emmet plugin. However, Vim can already do a bunch of stuff with tags out
+of the box. First, the tags themselves (i.e. the text between
+<code>&lt;</code> and <code>&gt;</code>) can be worked with using
+commands like <code>ci&lt;</code>. But there’s also the tags text
+object. Given this:</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;</span>Item Numbe<span class=cursor>r</span> 1<span class="dt">&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span></code></pre></div>
+<p>You can do <code>cit</code> to edit the text content between the
+tags. You can also enter <code>dat</code> to get rid of the whole thing.
+In either case, it doesn’t matter if your cursor is inside the text
+content itself or somewhere between the <code>&lt;&gt;</code>
+brackets.</p>
+<h4 id="text-object-motions">Text Object Motions</h4>
+<p>One additional benefit of text objects is that fact that there are
+also corresponding motions for most of them. Just like <code>w</code>
+jumps one word, <code>)</code> will jump one sentence forward, while
+<code>(</code> will jump backwards. As I have mentioned above, the
+sentence text object is not the most useful when it comes to code. The
+paragraph, on the other hand, is very useful. I find that a lot of my
+code consists of sequences of 1-4 contiguous lines, seperated by blank
+lines. For jumping between these, you can use the paragraph motion,
+which is used by hitting <code>}</code> to go forward and <code>{</code>
+to go backward.</p>
+<p>I’ve grown to use this as sort of my mid-range scrolling/browsing
+function, because I’ve found that oftentimes,
+<code>j</code>/<code>k</code> is too slow and
+<code>C-d</code>/<code>C-u</code> is too fast or disorienting. It also
+helps that <code>{</code>/<code>}</code> can be reached pretty
+comfortably from a natural resting position.</p>
+<p>Another thing to note: Since motions can be combined with operators,
+you can do stuff like entering <code>d}</code> to delete the rest of the
+paragraph from you current cursor position.</p>
+<h4 id="search-is-a-motion">Search is a motion</h4>
+<p>While you’re in the mindset of combining motions with operators: One
+exceedingly practical thing to realize is the fact that search is a
+motion. Let me say that again, for emphasis: <em>Search is a
+motion</em></p>
+<p>This means that, since you can combine motions with operators, you
+can do stuff like this:</p>
+<pre><code>Haikus are <span class=cursor>e</span>asy
+But sometimes they don&#39;t make sense
+Refrigerator</code></pre>
+<p>Here you can type <code>d/se</code> to be left with this:</p>
+<pre><code>Haikus are sense
+Refrigerator</code></pre>
+<p>The motion of <code>/se</code> caused the delete to affect everything
+up to the next occurence of <code>se</code>, which happened to be the
+start of the word <code>sense</code>. You can even do things like
+<code>2d/se</code> to delete up to the <em>second</em> occurrence of
+<code>se</code> (the variant <code>d2/se</code> also works). As a more
+interactive variant, after you have begun to enter <code>d/se</code>,
+Vim (with the <code>hlsearch</code> setting) will already start to
+highlight all the matches for <code>se</code> while you are still
+entering your search term. In this situation, you can hit
+<code>C-g</code> to highlight the next of the found search results. If
+you press Enter after this, your <code>d</code> operation will take
+place up to the search result you’ve highlighted using
+<code>C-g</code>.</p>
+<p>Going further, if you also wanted to delete the search term itself,
+you can add a <code>/e</code> at the end of your search. This will cause
+the search to place your cursor at the end of the search term, and since
+we are combining the search motion with the delete operator, this means
+that the search term will be included in the deletion. For example, if
+you ran <code>d/sense/e</code> on our initial example, you’d get
+this:</p>
+<pre><code>Haikus are
+Refrigerator</code></pre>
+<p>The same technique can be used when creating a visual selection. Hit
+<code>v</code> to start visual mode, then <code>/foo</code> to extend
+your selection up to <code>foo</code>. If you want the second occurrence
+of <code>foo</code> instead, you can simply hit <code>n</code> to
+further extend your selection, just like with regular search.</p>
+<h4 id="jumping-around-on-the-current-screen">Jumping around on the
+current screen</h4>
+<p>You can use <code>H</code>, <code>M</code> and <code>L</code> to jump
+to the top, middle and bottom of your current screen, respectively (the
+mnemonic I use is high, middle, low). After jumping, it’s often useful
+to re-align your current view. You can do this using <code>zz</code>,
+which will bring the line that your cursor is currently on to the middle
+of the screen (don’t confuse this with <code>ZZ</code>, which will save
+the file and exit Vim). There are also the variants <code>zt</code> and
+<code>zb</code> for bringing your current line to the top and bottom of
+the screen, respectively.</p>
+<p>To navigate horizontally, you can use <code>gm</code> to jump to the
+middle of the current screen width, or <code>gM</code> to jump to the
+middle of the current line (which is a different thing if you’re on a
+long line, irrespective of its being wrapped or not).</p>
+<h4 id="increasing-and-decreasing-numbers">Increasing and decreasing
+numbers</h4>
+<p>One of the lesser known features of Vim is that there are shortcuts
+for increasing and decreasing numbers. I stumbled upon this while
+browsing <a
+href="https://towardsdatascience.com/explaining-every-line-of-vim-sensible-b776affec51a">this
+article</a> that goes over every line of the popular <a
+href="https://github.com/tpope/vim-sensible">sensible.vim</a> config
+file (If you don’t know about <code>sensible.vim</code>, it’s like a <a
+href="https://en.wikipedia.org/wiki/Reset_style_sheet">CSS reset</a>,
+but for your Vim config).</p>
+<p>To use this feature, position the cursor over an integer and press
+<code>C-a</code> to increase or <code>C-x</code> to decrease the
+number.</p>
+<p>One thing the article mentioned above mentions is that you should
+add</p>
+<pre><code>set nrformats-=octal</code></pre>
+<p>to your <code>.vimrc</code> if you plan on using this feature on
+numbers that start with zero, because otherwise they will be interpreted
+as octal integers.</p>
+<p>Now, the nice thing is that this also will travel to the first
+relevant position, so if your cursor is at the beginning of the line and
+you press <code>C-a</code>, it will increase the first integer it
+encounters <em>and</em> your cursor will already be there.</p>
+<p>This enables nice workflows like the following. Let’s say you’re
+working on a custom 3D engine, and you want to draw a rectangle with
+four corners by drawing lines between each of the corners. You start out
+with this code:</p>
+<pre><code><span class=cursor>d</span>rawLine(p1, p2);</code></pre>
+<p>To generate the second line, hit <code>yyp C-a l C-a</code> (I know
+this looks a mouthful, but once you’ve done it a few times it ends up
+being a lot faster than modifying the text manually). The
+<code>yyp</code> obviously duplicates the line and moves the cursor to
+the new line, <code>C-a</code> will increase the first number on the
+line, turning <code>p1</code> into <code>p2</code> while also jumping to
+it. Hitting <code>l</code> will move you beyond the first number so that
+the final <code>C-a</code> will affect the second number on the line,
+yielding this:</p>
+<pre><code>drawLine(p1, p2);
+drawLine(p2, p<span class=cursor>3</span>);</code></pre>
+<p>Repeat this twice more, except on the last call you don’t do the
+second <code>C-a</code> since you want <code>p1</code> instead of
+<code>p5</code>, therefore you hit <code>3 C-x</code> instead, leaving
+you with the full code for drawing your rectangle:</p>
+<pre><code>drawLine(p1, p2);
+drawLine(p2, p3);
+drawLine(p3, p4);
+drawLine(p4, p<span class=cursor>1</span>);</code></pre>
+<p>You can even abuse this feature to perform some on-the-fly
+arithmetic: If you have the text <code>2<span class=cursor>3</span></code> and hit
+<code>50 C-x</code>, it will leave you with <code>-27</code>.</p>
+<h4 id="single-command-during-insert-mode">Single command during insert
+mode</h4>
+<p>Pressing <code>C-o</code> while in insert mode allows you to execute
+a single command, and will then go back to insert mode. For example, if
+you’ve forgotten a word before the last word you typed, you can do
+<code>C-o</code> <code>b</code>, then type your word, then do
+<code>C-o</code> <code>$</code> and be back in insert mode in the
+position where you were before, having achieved all of this directly
+from insert mode, without having used command mode at all.</p>
+<h4 id="inserting-from-registers">Inserting from registers</h4>
+<p>You already know that you can paste from, say, register
+<code>b</code> by entering <code>"bp</code>. But there’s also another
+way: You can enter <code>C-r</code> <code>b</code>. This works while
+you’re in insert mode, but more importantly, it also works on Vim’s
+command line. This means you can do something like <code>yiw</code> to
+yank the current word, and then enter this on the command line:
+<code>:%s/</code> <code>C-r</code> <code>0</code> <code>/Foo/g</code>.
+This will insert the yanked text (from the register 0, which contains
+your last yanked text) in place of the search term in this
+<code>%s</code> command, meaning you don’t have to type the word
+manually in order to replace it.</p>
+<p>You can also use these special registers with this technique:</p>
+<ul>
+<li><code>/</code> the last search term</li>
+<li><code>%</code> current filename</li>
+<li><code>:</code> last command line</li>
+<li><code>.</code> last inserted text</li>
+<li><code>-</code> the last deleted “small text”, i.e. if the last
+deletion was less than a line</li>
+<li><code>=</code> expression register: you will be prompted for an
+expression, for example entering <code>1+1</code> will cause Vim to
+insert <code>2</code></li>
+</ul>
+<p>There are also some special combinations for inserting this way,
+which are mostly interesting when in command line mode:</p>
+<ul>
+<li><code>C-r</code> <code>C-w</code> inserts the word currently under
+the cursor</li>
+<li><code>C-r</code> <code>C-a</code> does the same thing for the
+current Word (capital W)</li>
+<li><code>C-r</code> <code>C-l</code> the current line</li>
+<li><code>C-r</code> <code>C-f</code> insert the filename currently
+under the cursor</li>
+<li><code>C-r</code> <code>C-p</code> the same thing but
+path-expanded</li>
+</ul>
+<h4 id="swapping-two-items">Swapping two items</h4>
+<p>Let’s say you have a function that starts off like this:</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode js"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">foo</span>(<span class=cursor>b</span>ar<span class="op">,</span> quux) {</span></code></pre></div>
+<p>Now you want to change the order of the two function arguments. You
+start of by doing <code>dw</code>. Then you move to <code>quux</code>
+using <code>w</code>. You select the whole word visuall by entering
+<code>ve</code>, and you replace it with <code>p</code>. Now you move
+back to the opening paren by doing <code>bb</code>, followed by a final
+<code>p</code> to paste the replaced <code>quux</code> into first
+position.</p>
+<h4 id="copying-a-line">Copying a line</h4>
+<p>Oftentimes when writing a new function you have to include an
+identical line from a previous function. If that function is still
+visible on your screen, you can do the following to duplicate the line,
+instead of having to jump there and yank it. All you need is the line’s
+number, which in my example is a relative line number, but it’ll work
+either way. If the line you want is <code>-12</code>, you can copy the
+line as a new line below your cursor position using this command:</p>
+<p><code>:-12t.</code></p>
+<p>The <code>.</code> in this case is a shorthand for the current line,
+whereas the <code>t</code> denotes the copy operation. You can already
+tell from this that you could even use this to copy the line to
+someplace else other than your current position by replacing the
+<code>.</code> with another line number.</p>
+<h4 id="replacing-text-with-yanked-text">Replacing text with yanked
+text</h4>
+<p>This is the one area that I sometimes get a bit frustrated with when
+it comes to Vim. Let’s say you have a word that you want to change,
+including its next two occurrences. In “lesser” editors like Sublime or
+VSCode, you can simply select the word, hit <code>C-d</code> two times
+to open a multicursor in its next two occurrences, and then just type
+your replacement.</p>
+<p>In Vim, even the reduced case of replacing a single instance of
+<code>foo</code> with <code>bar</code> (that you’ve yanked from
+somewhere beforehand), is not straight-forward. If you delete
+<code>foo</code> before pasting, the deletion will overwrite your yanked
+<code>bar</code>. You can get around this by first pasting, then
+deleting (this will however not work if you want to replace more than
+one occurrence). You can also get around it by using <code>"_d</code> to
+send the deleted text to the black hole register instead of the default
+register, but this gets annoying to type for every single
+occurrence.</p>
+<p>As another alternative, global search and replace with
+<code>%s</code> is often not the right thing either, because you might
+only want to replace a handful of items in the local code block without
+worrying what other things in your 2000-line file might be called
+<code>foo</code>. Also, a global search is a bit cumbersome to enter. So
+far, neither of these options is really satisfying, so I would like to
+discuss some alternatives.</p>
+<h6 id="lets-get-visual">Let’s get visual</h6>
+<p>As a basic technique, you can select <code>foo</code> visually (for
+example using <code>viw</code>) and then press <code>p</code> to paste
+over it. Note however that this has the same drawback as the other
+methods, since replacing the visual selection will cause its content to
+end up in the default register.</p>
+<h6 id="poor-mans-multicursor">Poor Man’s Multicursor</h6>
+<p>While experimenting with better ways to do replacement, I came up
+with this technique that sometimes is a bit easier than the
+alternatives. I call it Poor Man’s Multicursor. The idea is based on the
+fact that you can use <code>*</code> to search the word currently under
+the cursor, while <code>#</code> does the same thing in the reverse
+direction.</p>
+<p>Let’s say, like above, that you have yanked <code>bar</code> and want
+to replace the next few instances of <code>foo</code> with it. You begin
+by hitting <code>#*</code>. This is sort of a hack that has the result
+of placing the word currently under the cursor in the search register,
+while leaving the cursor in the same place you started out at. Now,
+enter <code>cw</code> to begin replacing the word. Instead of entering
+it manually, however, hit <code>C-r</code> <code>0</code> to insert it
+from the last-yanked register. At this point you have replaced the first
+instance of <code>foo</code> with <code>bar</code>. Now, enter
+<code>n.</code> (make sure to include the period), which will replace
+the next instance of the word, and keep entering <code>n.</code> until
+all desired instances have been replaced. This works because
+<code>n</code> will jump to the next occurrence of our search term
+(because we put it in the search register by hitting <code>#*</code>)
+while <code>.</code> will repeat the last action, meaning the
+<code>cw</code>, including the replacement text.</p>
+<p>Please note that this method has the drawback of only working when
+<code>foo</code> is a single word in the Vim sense. However, the
+<code>bar</code> text in this example does not have to be, and neither
+do you have to replace your search term in its entirety: For example, if
+you use <code>cfo</code> instead of <code>cw</code> before entering
+<code>C-r</code> <code>0</code>, your first and all subsequent
+replacements will end up as <code>baro</code>.</p>
+<p>There’s a slight optimization for this technique if you know that you
+want to replace all occurrences in the file. You can omit the
+<code>#</code> and simply start off with <code>*</code> directly. This
+will leave the very first occurrence unmodified, but after you’ve
+replaced the last match, you can simply hit <code>*</code> again to wrap
+around to the first occurrence and hit <code>.</code> again to replace
+it at last.</p>
+<h6 id="using-the---register">Using the <code>-</code> register</h6>
+<p>Another technique for quickly replacing a yanked word multiple times
+is this: Change the first occurrence with <code>cw</code>. Now, hit
+<code>/</code> followed by <code>C-r</code> and then <code>-</code>. The
+word you just replaced is inserted (this works because for deletions
+shorter than a line, Vim yanks these to this special register). Hit
+enter to search for the next occurence of the word, then hit
+<code>.</code> to repeat your last <code>cw</code> action. You can just
+keep hitting <code>n</code> followed by <code>.</code> to replace
+subsequent matches.</p>
+<h6 id="just-use-substitutions">Just use substitutions</h6>
+<p>I know, the whole point of using multicursor over substitutions is
+greater convenience, but hear me out. You usually want to use
+multicursor because you might only want to replace the next 3
+occurrences that you can see on your screen. There are two ways to do
+this with substitutions.</p>
+<h6 id="substitution-with-confirmation">Substitution with
+confirmation</h6>
+<p>This technique combines two features: Specifying line ranges and
+enabling confirmation for substitutions. First, you specify the range
+from the current line to the end of the file, by prefixing your
+<code>s</code> command with <code>,$</code>. This works because leaving
+the starting line before the comma empty will default it to the current
+line, and the <code>$</code> of course means the end of the file. Now,
+instead of re-typing your search term, you can hit <code>C-r</code>
+<code>C-w</code> on the command line to insert the word currently under
+the cursor (or <code>C-r</code> <code>C-a</code> for the current
+capital-W Word). For the replacement text, you can repeat the same thing
+and then edit your word. If you just want to append, you can use
+<code>&amp;</code> as a placeholder for your search term, so you don’t
+have to type it a second time. Finally, finish your command with
+<code>/gc</code>. The <code>g</code> flag will replace all matches on a
+line, as usual, and the <code>c</code> flag will cause Vim to ask you
+for confirmation for each line. To sum up, if you wanted to replace the
+next few occurrences of <code>foo</code> with <code>foobar</code>,
+starting at the current line:</p>
+<p><code>:,$s/foo/&amp;bar/gc</code></p>
+<p>Vim will show you this prompt for each match:</p>
+<p><code>replace with &amp;bar (y/n/a/q/l/^E/^Y)?</code></p>
+<ul>
+<li><code>y</code>: yes</li>
+<li><code>n</code>: no</li>
+<li><code>a</code>: replace all remaining</li>
+<li><code>q</code>: quit replacing</li>
+<li><code>l</code>: replace this last one, then quit</li>
+<li><code>^Y</code>: scroll down a line</li>
+<li><code>^E</code>: scroll up a line</li>
+</ul>
+<p>This means that if you wanted to replace the next three occurrences,
+you would enter the command above and t hen answer the prompts with
+<code>yyl</code>.</p>
+<p>To make this technique easier, we can abuse another feature: If you
+hit <code>!</code> followed by a motion, Vim will pre-populate the
+command line with the range that corresponds to the motion, followed by
+a <code>!</code> character because this feature is meant to be used with
+external filter programs. However, we can just hit backspace to get rid
+of the exclamation mark and be left with a range. For our current
+example of wanting to replace from the current line to the end of the
+file, we can hit <code>!G</code> followed by backspace, which will leave
+us with this:</p>
+<p><code>:.,$</code></p>
+<p>Note that this also saves us from having to enter command mode by
+pressing the <code>:</code> key.</p>
+<h6 id="substitution-with-line-ranges">Substitution with line
+ranges</h6>
+<p>If you can already see all the occurrences you want to replace, you
+can also simply give the line range directly. I’m using relative line
+numbers, so I prefix my line numbers with <code>+</code> and
+<code>-</code>, but you can also use absolute line numbers of course.
+Let’s say you want to replace the next 3 occurrences, and you can see
+that they are all somewhere inside the next 8 lines, you can then
+run:</p>
+<p><code>:,+8s/foo/&amp;bar/g</code></p>
+<p>That’s it. If they’re all in separate lines, you can even omit the
+<code>/g</code> suffix entirely, including the <code>/</code>. This
+method works great for the very common use case of just renaming a local
+variable inside a function.</p>
+<p>There’s a similar technique as above to get Vim to pre-populate the
+range for us. Hitting <code>!!</code> will open the command line with a
+<code>!</code> for the current line, but by prefixing the
+<code>!!</code> with a count we get a pre-populated range for this many
+lines, including the current line. If you want to replace on the current
+line plus the next 7, you would enter <code>8!!</code>. Note that we
+have to add one to the count because the current line has to be included
+in the count. After following the command with a backspace to delete the
+exclamation point we are left with this:</p>
+<p><code>:.,.+7</code></p>
+<p>And we can continue to type in our <code>s</code> command from there.
+Especially if you are using relative line numbers, this trick can save
+you some keystrokes.</p>
+<h6 id="substitution-using-visual-mode">Substitution using visual
+mode</h6>
+<p>This is the substitution variant that I use the most: Start off by
+selecting the text to which you want to limit your substitution, for
+example by hitting <code>vaB</code> to select the entire
+<code>{</code>-delimited code block you are currently in (you can hit
+<code>aB</code> again to extend your selection “outwards” if you happen
+to be inside a nested block). If you now press <code>:</code> to begin
+typing an Ex command, you will see that Vim has autopopulated the range
+with <code>'&lt;,'&gt;</code>, which denotes the currently selected
+visual block. And since your command is limited to this block, you can
+use regular substitution, without having to enter any safeguards like
+the <code>/c</code> suffix.</p>
+<h4 id="opening-the-last-document">Opening the last document
+<sup>†</sup></h4>
+<p>After jumping around with things like <code>23gg</code> or
+<code>/foo</code>, you can jump back with <code>C-o</code> and forward
+again using <code>C-i</code> (this means the same thing as
+<code>CTRL-i</code>). However, one thing I didn’t realize until recently
+is that you can hit <code>C-o</code> <em>twice</em> after starting Vim
+in order to go back to your last open file, to the position you were
+last at.</p>
+<p>If you want to open documents you had open even earlier, you can type
+<code>:bro ol</code> (short for <code>:browse old</code>) on the command
+line to show you the list of previously open documents, allowing you to
+enter a number to open one of them.</p>
+<h4 id="repeating-the-last-ex-command">Repeating the last Ex
+command</h4>
+<p>Often you have complicated commands on the command line that you
+don’t want to type again. Of course you can always enter <code>:</code>
+to open the command line, then hit the up arrow to call up the last
+command, and then hit enter to execute it a second time. However,
+there’s a shorter way: You can just hit <code>@:</code> to do all
+that.</p>
+<p>This trick becomes useful especially when combined with another
+technique, and that is to combine multiple ex command using the
+<code>|</code> pipe symbol. In Vim, this doesn’t have the same meaning
+as in the shell, but will allow you to run multiple commands again.</p>
+<p>To combine both techniques: Let’s assume you’re in the common
+position that you’re developing and you frequently are going through the
+development cycle of changing your file, saving it, building it, then
+running your application. You can smooth this process by doing something
+like this:</p>
+<p><code>:w | !make &amp;&amp; ./my_app</code></p>
+<p>This will save your work, run <code>make</code> and execute your
+application so you can test it. Once you’ve made more changes, you can
+then type <code>@:</code> in order to repeat them.</p>
+<p>To facilitate this even further, once you’ve repeated the command
+once using <code>@:</code>, any subsequent repetitions can be performed
+using <code>@@</code>, which is slightly easier to type.</p>
+<p>However, this all depends on not using any other Ex commands
+inbetween, so it’s often handier to record a quick macro that performs
+the above steps, so you can save, make and run your code using, for
+example, <code>@r</code>.</p>
+<p>As a closing thought, even if you don’t use any Ex commands other
+than <code>:w</code>, you can use <code>@:</code> and <code>@@</code> to
+repeat that, saving you a keystroke very frequently.</p>
+<h4 id="repeating-the-last-substitution">Repeating the last
+substitution</h4>
+<p>In the same vein, you can repeat the last substitution that you’ve
+performed simply by using the <code>&amp;</code> key. This means you can
+perform other commands in between substitutions while not having to type
+it out all again. If you want to replace based on the same search term,
+but with something different than before, you can leave the search term
+empty in your <code>s</code> command in order to match the same text as
+the last substitution:</p>
+<p><code>:s//bar</code></p>
+<p>This will substitute whatever you replaced last, but this time it
+will substitute it with <code>bar</code>.</p>
+<p>One related case that commonly happens is this: You’ve made a
+substitution using <code>:s</code> that you really meant to perform
+globally. You can repeat that last substitution for all lines in the
+file simply by entering <code>:%&amp;</code>.</p>
+<h4 id="write-to-a-system-file-using-sudo">Write to a system file using
+<code>sudo</code> <sup>†</sup></h4>
+<p>We have all encountered the following situation: You’ve made a
+careful edit to a system file, only to find upon saving that you were
+editing the file as your user, and not as root, and therefore you don’t
+have the privileges necessary for saving the file. You could always save
+the file elsewhere, and restart Vim with <code>sudo vim</code> and then
+copy over the contents, or <code>sudo cp</code> the file instead, but
+all of these are awkward. Here’s what you can do instead:</p>
+<p><code>:w !sudo tee %</code></p>
+<p>After this you will get a prompt that your file has changed, and you
+can confirm that prompt by pressing the <code>l</code> key to reload the
+file.</p>
+<p>What happened here? Let’s decompose the parts of this command: First,
+you can send the contents of your current buffer to an external command
+as stdin using the command <code>w !foo</code>. This will write the
+buffer to the <code>foo</code> command. So what we are doing is writing
+our current contents to the command <code>sudo tee %</code>.
+Additionally, the <code>%</code> character will be replaced with the
+current filename. Lastly, the <code>tee</code> program is a simple tool
+that does one thing: It copies its stdin to <em>both</em> stdout as well
+as the filename given to it as an argument (so it works like a
+T-junction, hence the name). Putting it all together, this will cause
+<code>tee</code> to write the contents of our buffer to the current
+filename, but with <code>sudo</code> privileges. That’s why you get the
+prompt at the end, because the file was modified from the outside by the
+<code>tee</code> program.</p>
+<p>Also note that this will cause the full file contents to be printed
+out as a result of the command, if you don’t want that you can append
+the suffix <code>&gt; /dev/null</code> to the command in order to keep
+the terminal clean.</p>
+<h4 id="navigating-files-with-long-lines">Navigating files with long
+lines</h4>
+<p>If you’re using the option <code>set wrap</code> for line wrapping,
+and are working with several long lines, cursor navigation can sometimes
+be confusing. Let’s take the following text as an example. Note that
+I’ve added the line numbers manually, they are not part of our fictional
+text document, they’re simply highlighting that the first line is
+line-wrapped:</p>
+<pre><code>1  Lorem ipsum dolor sit amet, consectetur adipiscing
+   elit, sed do eiusmod tempor incididunt
+2  This<span class=cursor> </span>is the second line</code></pre>
+<p>Now let’s assume you want to remove the comma after
+<code>elit</code>. If you hit <code>k</code> now to go up, your cursor
+ends up at the <code>m</code> of <code>Lorem</code>, near the beginning
+of the first line:</p>
+<pre><code>1  Lore<span class=cursor>m</span> ipsum dolor sit amet, consectetur adipiscing
+   elit, sed do eiusmod tempor incididunt
+2  This is the second line</code></pre>
+<p>If this is disorienting to you, there’s another way. You can preface
+your <code>j</code> and <code>k</code> keys with <code>g</code>. This
+will tell Vim that you want to navigate based on your current view of
+the text, and not on the actual layout of the file. This means that when
+you instead hit <code>gk</code> in our previous example, you will end up
+here, as desired:</p>
+<pre><code>1  Lorem ipsum dolor sit amet, consectetur adipiscing
+   elit<span class=cursor>,</span> sed do eiusmod tempor incididunt
+2  This is the second line</code></pre>
+
+  <hr>
+  <p><a href="#top">back to top</a></p>
+  </body>
+</html>
