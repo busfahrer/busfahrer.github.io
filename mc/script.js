@@ -1164,6 +1164,12 @@ window.onkeyup = function(e) {
   keyWentUpMap[e.key] = true;
 }
 
+ canvas.addEventListener('touchmove', (e) => {
+   e.preventDefault();
+     const rect = canvas.getBoundingClientRect();
+     mouseX = e.clientX - rect.left;
+     mouseY = e.clientY - rect.top;
+});
  canvas.addEventListener('mousemove', (e) => {
      const rect = canvas.getBoundingClientRect();
      mouseX = e.clientX - rect.left;
