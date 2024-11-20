@@ -44,6 +44,10 @@ let rayEnd;
 let newPos;
 let mouseX = 32;
 let mouseY = 32;
+let lastX = 0;
+let lastY = 0;
+let deltaX = 0;
+let deltaY = 0;
 
 let texture;
 var vMatrix = mat4.create();
@@ -952,6 +956,8 @@ function drawScene() {
 
   //cube.pos[2] -= 0.019;
   //octahedron.theta += 0.01;
+  player.theta += deltaX * 0.002;
+  player.verticalTheta += deltaY * -0.002;
   if (keyMap["n"]) { player.verticalTheta -= 0.02; }
   if (keyMap["m"]) { player.verticalTheta += 0.02; }
   if (keyMap["q"]) { player.theta -= 0.02; }
@@ -986,11 +992,11 @@ function drawScene() {
 
   //teapot.theta += 0.02;
 
-  if (tryMoveY(meshes, player, -player.fallSpeed)) {
-    player.fallSpeed += GRAVITY;
-  } else {
-    player.fallSpeed = player.fallSpeed * -0.55;
-  }
+  //if (tryMoveY(meshes, player, -player.fallSpeed)) {
+    //player.fallSpeed += GRAVITY;
+  //} else {
+    //player.fallSpeed = player.fallSpeed * -0.55;
+  //}
 
   requestAnimationFrame(drawScene);
 }
@@ -1164,12 +1170,38 @@ window.onkeyup = function(e) {
   keyWentUpMap[e.key] = true;
 }
 
- canvas.addEventListener('touchmove', (e) => {
-   e.preventDefault();
-     const rect = canvas.getBoundingClientRect();
-     mouseX = e.clientX - rect.left;
-     mouseY = e.clientY - rect.top;
+canvas.addEventListener('swipe', (e) => { console.log("swipe", e) });
+canvas.addEventListener('touchstart', (e) => {
+  //e.preventDefault();
+  console.log("touchstart", e)
+  const clientX = e.touches[0].clientX;
+  const clientY = e.touches[0].clientY;
+  //deltaX = lastX - e.touches[0].clientX;
+  //deltaY = lastY - e.touches[0].clientY;
+  lastX = clientX;
+  lastY = clientY;
+  console.log(clientX, clientY, deltaX, deltaY);
 });
+canvas.addEventListener('touchend', (e) => {
+  //e.preventDefault();
+  console.log("touchend", e); deltaX = 0; deltaY = 0;
+});
+//canvas.addEventListener('touchcancel', (e) => { e.preventDefault(); deltaX = 0; deltaY = 0; });
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  //console.log('touchmove', e.touches[0].clientX);
+  //const rect = canvas.getBoundingClientRect();
+  //mouseX = e.clientX - rect.left;
+  //mouseY = e.clientY - rect.top;
+  const clientX = e.touches[0].clientX;
+  const clientY = e.touches[0].clientY;
+  deltaX = lastX - e.touches[0].clientX;
+  deltaY = lastY - e.touches[0].clientY;
+  lastX = clientX;
+  lastY = clientY;
+  console.log(clientX, clientY, deltaX, deltaY);
+});
+
  canvas.addEventListener('mousemove', (e) => {
      const rect = canvas.getBoundingClientRect();
      mouseX = e.clientX - rect.left;
