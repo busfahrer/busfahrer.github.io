@@ -48,6 +48,7 @@ let lastX = 0;
 let lastY = 0;
 let deltaX = 0;
 let deltaY = 0;
+let touchCount = 0;
 
 let texture;
 var vMatrix = mat4.create();
@@ -956,8 +957,15 @@ function drawScene() {
 
   //cube.pos[2] -= 0.019;
   //octahedron.theta += 0.01;
-  player.theta += deltaX * 0.002;
-  player.verticalTheta += deltaY * -0.002;
+  if (touchCount == 2) {
+    player.theta += deltaX * 0.002;
+    player.verticalTheta += deltaY * -0.002;
+  }
+  if (touchCount == 1) {
+    tryMovePlayer(meshes, player,  deltaX, 0);
+    tryMovePlayer(meshes, player,  deltaY, PI/2);
+  }
+
   if (keyMap["n"]) { player.verticalTheta -= 0.02; }
   if (keyMap["m"]) { player.verticalTheta += 0.02; }
   if (keyMap["q"]) { player.theta -= 0.02; }
@@ -1174,6 +1182,7 @@ canvas.addEventListener('swipe', (e) => { console.log("swipe", e) });
 canvas.addEventListener('touchstart', (e) => {
   //e.preventDefault();
   console.log("touchstart", e)
+  touchCount = e.touches.length;
   const clientX = e.touches[0].clientX;
   const clientY = e.touches[0].clientY;
   //deltaX = lastX - e.touches[0].clientX;
@@ -1184,11 +1193,16 @@ canvas.addEventListener('touchstart', (e) => {
 });
 canvas.addEventListener('touchend', (e) => {
   //e.preventDefault();
-  console.log("touchend", e); deltaX = 0; deltaY = 0;
+  //console.log("touchend", e);
+  //deltaX = 0;
+  //deltaY = 0;
+  //touchCount = e.touches.length;
+  touchCount = 0;
 });
 //canvas.addEventListener('touchcancel', (e) => { e.preventDefault(); deltaX = 0; deltaY = 0; });
 canvas.addEventListener('touchmove', (e) => {
   e.preventDefault();
+  touchCount = e.touches.length;
   //console.log('touchmove', e.touches[0].clientX);
   //const rect = canvas.getBoundingClientRect();
   //mouseX = e.clientX - rect.left;
@@ -1199,7 +1213,7 @@ canvas.addEventListener('touchmove', (e) => {
   deltaY = lastY - e.touches[0].clientY;
   lastX = clientX;
   lastY = clientY;
-  console.log(clientX, clientY, deltaX, deltaY);
+  //console.log(clientX, clientY, deltaX, deltaY);
 });
 
  canvas.addEventListener('mousemove', (e) => {
