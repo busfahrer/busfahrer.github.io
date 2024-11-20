@@ -1,3 +1,5 @@
+// TODO fix the hardcoded 36 on render call
+// TODO fix on macos - might be related to arraybuffer length problem?
 // TODO add cube deletion
 // TODO FIME when placing blocks while looking into a slanted dir, after placing the block
 // the highlighted block is wrong? It seems after that, placing a new one will be correct, but the highlight itself was wrong?
@@ -349,6 +351,7 @@ function makeMesh(obj) {
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
   vertexBuffer.itemSize = 3;
   vertexBuffer.numItems = vertices.length;
+  console.log(vertices.length);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
@@ -631,18 +634,18 @@ function drawMesh(mesh) {
 
   gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertexBuffer);
   gl.enableVertexAttribArray(shader_prog.positionLocation);
-  gl.vertexAttribPointer(shader_prog.positionLocation, mesh.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(shader_prog.positionLocation, mesh.vertexBuffer.itemSize, gl.FLOAT, false, 3*4, 0);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, mesh.colorBuffer);
   gl.enableVertexAttribArray(shader_prog.colorLocation);
-  gl.vertexAttribPointer(shader_prog.colorLocation, mesh.colorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(shader_prog.colorLocation, mesh.colorBuffer.itemSize, gl.FLOAT, false, 3*4, 0);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, mesh.normalBuffer);
   gl.enableVertexAttribArray(shader_prog.normalLocation);
-  gl.vertexAttribPointer(shader_prog.normalLocation, mesh.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(shader_prog.normalLocation, mesh.normalBuffer.itemSize, gl.FLOAT, false, 3*4, 0);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, mesh.textureCoordBuffer);
-  gl.vertexAttribPointer(shader_prog.textureCoordLocation, mesh.textureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(shader_prog.textureCoordLocation, mesh.textureCoordBuffer.itemSize, gl.FLOAT, false, 2*4, 0);
   gl.enableVertexAttribArray(shader_prog.textureCoordLocation);
 
   // calculate the normal matrix. This is the equivalent of the model matrix,
@@ -849,7 +852,7 @@ function drawMesh(mesh) {
   //gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer);
   //gl.drawElements(gl.TRIANGLES, mesh.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
   gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertexBuffer);
-  gl.drawArrays(gl.TRIANGLES, 0, mesh.vertexBuffer.numItems);
+  gl.drawArrays(gl.TRIANGLES, 0, 36); // TODO FIXME: this fixes it on mac
 
   return intersections;
 }
