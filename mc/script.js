@@ -1,3 +1,4 @@
+// TODO textures from https://www.curseforge.com/minecraft/texture-packs/vanilladefault
 // TODO fix the hardcoded 36 on render call
 // TODO fix on macos - might be related to arraybuffer length problem?
 // TODO add cube deletion
@@ -49,8 +50,9 @@ let lastY = 0;
 let deltaX = 0;
 let deltaY = 0;
 let touchCount = 0;
+let nextTexture = 3;
 
-let texture;
+let textures = [];
 var vMatrix = mat4.create();
 var mMatrix = mat4.create();
 var nMatrix = mat4.create();
@@ -168,13 +170,16 @@ function loadTexture(gl, url) {
     // power of 2 in both dimensions.
     if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
       // Yes, it's a power of 2. Generate mips.
-      gl.generateMipmap(gl.TEXTURE_2D);
+      //gl.generateMipmap(gl.TEXTURE_2D);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     } else {
       // No, it's not a power of 2. Turn off mips and set
       // wrapping to clamp to edge
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     }
   };
   image.src = url;
@@ -186,9 +191,36 @@ function isPowerOf2(value) {
   return (value & (value - 1)) === 0;
 }
 
+function updateToolbar() {
+  for (let i = 1; i < 8; i++) {
+    const img = document.getElementById("texture" + i);
+    img.src = WOLFTEXTURES[i];
+    img.classList.remove("selectedTexture");
+    if (nextTexture === i) {
+      img.classList.add("selectedTexture");
+    }
+  }
+}
+
+function initToolbar() {
+  for (let i = 1; i < 8; i++) {
+    const img = document.getElementById("texture" + i);
+    img.src = WOLFTEXTURES[i];
+    img.width = "96";
+    img.onclick = e => {
+      e.preventDefault();
+      nextTexture = i;
+      updateToolbar();
+      e.stopPropagation();
+    };
+  }
+  updateToolbar();
+}
+
 function initGL(canvas) {
   try {
     gl = canvas.getContext("webgl");
+    console.log("MAX_COMBINED_TEXTURE_IMAGE_UNITS", gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
     gl.viewportWidth = canvas.width;
     gl.viewportHeight = canvas.height;
   } catch (e) {
@@ -542,20 +574,20 @@ function loadModel(modelData, scale) {
   return makeMesh(parseModel(modelData, scale));
 }
 
-function loadAndAddModel(meshes, modelData, pos = [0, 0, 0], scale = 1) {
+function loadAndAddModel(meshes, modelData, textureId, pos = [0, 0, 0], scale = 1) {
   const mesh = loadModel(modelData, scale);
   mesh.pos = pos;
+  mesh.textureId = textureId;
   meshes.push(mesh);
   return mesh;
 }
 
-
-function makeCubeAtHighlightedPosition() {
-    makeAndAddCube(meshes, newPos);
+function makeAndAddCube(meshes, textureId, pos, scale) {
+  return loadAndAddModel(meshes, cubeData, textureId, pos, scale);
 }
 
-function makeAndAddCube(meshes, pos, scale) {
-  return loadAndAddModel(meshes, cubeData, pos, scale);
+function makeCubeAtHighlightedPosition() {
+    makeAndAddCube(meshes, nextTexture, newPos);
 }
 
 //this is just makeAndAddCube with width = scale because or cube has edge length 1
@@ -773,7 +805,6 @@ function drawMesh(mesh) {
       // TODO check if point is in front of player
       //if (keyMap["w"]) { tryMovePlayer(meshes, player,  1, PI/2); }
       //if (keyMap["s"]) { tryMovePlayer(meshes, player, -1, PI/2); }
-      //function tryMovePlayer(meshes, player, direction, dtheta) {
 
       //TODO rework this
       //const dtheta = PI/2;
@@ -843,14 +874,12 @@ function drawMesh(mesh) {
   gl.uniform3fv(shader_prog.uLightClqLocation, vec3.fromValues(...attenuationConstants[attenuationConstantFromRange]));
   gl.uniform3fv(shader_prog.uLightColorLocation, vec3.fromValues(1.0, 1.0, 1.0));
 
-  // Tell WebGL we want to affect texture unit 0
-  gl.activeTexture(gl.TEXTURE0);
-
-  // Bind the texture to texture unit 0
-  gl.bindTexture(gl.TEXTURE_2D, texture);
+  const textureId = mesh.textureId || 1;
+  gl.activeTexture(gl[`TEXTURE${textureId}`]);
+  gl.bindTexture(gl.TEXTURE_2D, textures[textureId]);
 
   // Tell the shader we bound the texture to texture unit 0
-  gl.uniform1i(shader_prog.uSamplerLocation, 0);
+  gl.uniform1i(shader_prog.uSamplerLocation, textureId);
 
   gl.uniform1i(shader_prog.uHighlightLocation, mesh.highlight ? 1 : 0);
 
@@ -1016,10 +1045,14 @@ function drawScene() {
   mouseX = canvas.width / 2;
   mouseY = canvas.height / 2;
 
+  initToolbar();
   initGL(canvas);
   initShaders();
   //TODO somehow new cube tex coords are strange?
-  texture = loadTexture(gl, WOLFTEXTURES[0]);
+  for (let i = 0; i < 8; ++i) {
+    gl.activeTexture(gl[`TEXTURE${i}`]);
+    textures.push(loadTexture(gl, WOLFTEXTURES[i]));
+  }
   // Flip image pixels into the bottom-to-top order that WebGL expects.
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
   //textureCoordBuffer = initTextureBuffer(gl);
@@ -1071,12 +1104,13 @@ function drawScene() {
   //meshes.push(minicooper);
 
   // !!!!! this expects width to be odd
+  const defaultTexture = 3;
   const makeLevelData = width => {
     const w = width;
     const halfW = floor(w / 2);
     let result = [];
     const add = v => result.push(v);
-    const addn = (n, val=1) => {
+    const addn = (n, val=defaultTexture) => {
       for (let i = 0; i < n; i++) {
         add(val);
       }
@@ -1085,9 +1119,9 @@ function drawScene() {
     for (let i = 0; i < w-2; i++) {
       addn(w);
       for (let j = 0; j < w-2; j++) {
-        add(1);
+        add(defaultTexture);
         addn(w-2, 0);
-        add(1);
+        add(defaultTexture);
       }
       addn(w);
     }
@@ -1098,43 +1132,44 @@ function drawScene() {
 
   let oldLevelData = [
     // ROOF
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
+    3, 3, 3, 3, 3,
+    3, 3, 3, 3, 3,
+    3, 3, 3, 3, 3,
+    3, 3, 3, 3, 3,
+    3, 3, 3, 3, 3,
 
     // Walls
-    1, 1, 1, 1, 1,
-    1, 0, 0, 0, 1, // irregular cube here
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 1, 1, 1, 1,
+    3, 3, 3, 3, 3,
+    3, 0, 0, 0, 3, // irregular cube here
+    4, 0, 0, 0, 3,
+    3, 0, 0, 0, 3,
+    3, 3, 3, 3, 3,
 
     // Walls
-    1, 1, 1, 1, 1,
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 1, 1, 1, 1,
+    3, 4, 3, 3, 3,
+    3, 0, 0, 0, 3,
+    3, 0, 0, 0, 3,
+    3, 0, 0, 0, 3,
+    3, 3, 3, 3, 3,
 
     // Walls
-    1, 1, 1, 1, 1,
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 1, 1, 1, 1,
+    3, 3, 3, 3, 3,
+    3, 0, 0, 0, 3,
+    3, 0, 0, 0, 4,
+    3, 0, 0, 0, 3,
+    3, 4, 3, 3, 3,
 
     // Floor
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
+    3, 3, 3, 3, 3,
+    3, 3, 3, 3, 3,
+    3, 3, 3, 3, 3,
+    3, 3, 3, 3, 3,
+    3, 3, 3, 3, 3,
   ];
 
-  const levelWidth = 11;
+  let levelWidth = 11;
   const levelData = makeLevelData(levelWidth);
+  //const levelData = oldLevelData; levelWidth = 5;
 
   const getOffset = (x, y, z) => (y * levelWidth * levelWidth + levelWidth * z + x);
   const halfW = floor(levelWidth / 2);
@@ -1145,12 +1180,12 @@ function drawScene() {
     for (let y = 0; y < levelWidth; y++) {
       level[x][y] = Array(levelWidth);
       for (let z = 0; z < levelWidth; z++) {
-        const hasCube = levelData[getOffset(x, y, z)];
-        level[x][y][z] = hasCube;
-        if (hasCube) {
+        const textureId = levelData[getOffset(x, y, z)];
+        level[x][y][z] = textureId;
+        if (textureId) {
           const getSpaceOffset = v => (v - halfW);
           const pos = [x-halfW, y-halfW, z-halfW];
-          const c = makeAndAddCube(meshes, pos);
+          const c = makeAndAddCube(meshes, textureId, pos);
           //if (x === 1 && z === 0 && y == 1) {
             //c.highlight = true;
           //}
@@ -1171,6 +1206,16 @@ function makeCube() {
 }
 
 window.onkeydown = function(e) {
+  if (e.key === "]") {
+    nextTexture = nextTexture + 1;
+    if (nextTexture > 7) { nextTexture = 1; }
+    updateToolbar();
+  }
+  if (e.key === "[") {
+    nextTexture = nextTexture - 1;
+    if (nextTexture < 1) { nextTexture = 7; }
+    updateToolbar();
+  }
   keyMap[e.key] = true;
 }
 window.onkeyup = function(e) {
