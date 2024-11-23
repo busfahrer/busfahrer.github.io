@@ -1061,8 +1061,8 @@ function drawScene() {
   Object.assign(player, {
     pos: [0, -1, 3.8],
     //theta: -1.7,
-    theta: 0.0,
-    verticalTheta: 0.0,
+    theta: -0.5,
+    verticalTheta: -0.2,
     fallSpeed: 0,
   });
   console.log({player});
