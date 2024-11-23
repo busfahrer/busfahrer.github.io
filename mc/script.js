@@ -1059,7 +1059,7 @@ function drawScene() {
 
   player = loadModel(cubeData);
   Object.assign(player, {
-    pos: [0, 0, 0],
+    pos: [0, -1, 3.8],
     //theta: -1.7,
     theta: 0.0,
     verticalTheta: 0.0,
