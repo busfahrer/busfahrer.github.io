@@ -50,7 +50,7 @@ let lastY = 0;
 let deltaX = 0;
 let deltaY = 0;
 let touchCount = 0;
-let nextTexture = 3;
+let nextTexture = 2;
 
 let textures = [];
 var vMatrix = mat4.create();
@@ -1104,7 +1104,7 @@ function drawScene() {
   //meshes.push(minicooper);
 
   // !!!!! this expects width to be odd
-  const defaultTexture = 3;
+  const defaultTexture = 1;
   const makeLevelData = width => {
     const w = width;
     const halfW = floor(w / 2);
