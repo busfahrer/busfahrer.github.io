@@ -986,11 +986,11 @@ function drawScene() {
 
   //cube.pos[2] -= 0.019;
   //octahedron.theta += 0.01;
-  if (touchCount == 2) {
+  if (touchCount == 1) {
     player.theta += deltaX * 0.002;
     player.verticalTheta += deltaY * -0.002;
   }
-  if (touchCount == 1) {
+  if (touchCount == 2) {
     tryMovePlayer(meshes, player,  deltaX, 0);
     tryMovePlayer(meshes, player,  deltaY, PI/2);
   }
