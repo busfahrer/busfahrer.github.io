@@ -1,5 +1,5 @@
 
-import init, { Emu } from "./pkg/emu8080_wasm.js";
+import init, { Emu } from "./build/emu8080_wasm.js";
 console.log("XXX trigger init");
 await init();
 const emu = Emu.new();
